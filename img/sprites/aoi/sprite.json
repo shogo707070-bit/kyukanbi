@@ -1,0 +1,14 @@
+{
+  "frameW": 128,
+  "frameH": 192,
+  "anims": {
+    "idle": 4,
+    "run": 4,
+    "happy": 4,
+    "sit": 4,
+    "walk": 4,
+    "surprise": 4,
+    "cheer": 4,
+    "wave": 4
+  }
+}
