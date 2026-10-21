@@ -21,7 +21,10 @@
     <!-- ホーム -->
     <section id="view-home" class="view active">
       <div class="hud">
-        <div id="today-label" class="date-line"></div>
+        <div class="hud-left">
+          <div id="today-label" class="date-line"></div>
+          <div class="wallet-chip" id="wallet-chip"><span>ポイント</span><b id="pt-num">0</b></div>
+        </div>
         <div class="streak">
           <span class="streak-label">連続記録</span>
           <span class="streak-num"><b id="streak-num">0</b>日</span>
@@ -50,6 +53,18 @@
           <span class="rec-check">✓</span>
           <span class="rec-main">飲んだよ</span>
         </button>
+      </div>
+      <!-- 「飲んだよ」を押したあとに出る、量の3択（押さなくてもOK） -->
+      <div id="amount" class="amount hidden">
+        <div class="amount-head">
+          <span>どのくらい飲んだ？<small>（えらばなくてもOK）</small></span>
+          <button id="amount-help" class="help-link" type="button">目安 ⓘ</button>
+        </div>
+        <div class="amount-row">
+          <button type="button" data-amt="s">ちょっと</button>
+          <button type="button" data-amt="m">ふつう</button>
+          <button type="button" data-amt="l">たくさん</button>
+        </div>
       </div>
       <p id="today-status" class="status"></p>
 
@@ -104,6 +119,17 @@
         </div>
         <div id="chart" class="chart"></div>
         <div id="chart-tip" class="chart-tip hidden" role="status"></div>
+        <!-- 飲んだ量（飲んだ日の内訳） -->
+        <div class="chart-sub">
+          <h4>飲んだ日の量</h4>
+          <div class="chart-legend">
+            <span><i class="key amt-s"></i>ちょっと</span>
+            <span><i class="key amt-m"></i>ふつう</span>
+            <span><i class="key amt-l"></i>たくさん</span>
+            <span><i class="key amt-u"></i>量は未選択</span>
+          </div>
+          <div id="chart-amt" class="chart"></div>
+        </div>
         <details class="chart-table">
           <summary id="chart-table-title">数字で見る</summary>
           <div class="table-scroll">
@@ -114,6 +140,22 @@
           </div>
         </details>
       </section>
+    </section>
+
+    <!-- 交換所 -->
+    <section id="view-shop" class="view">
+      <div class="shop-head">
+        <h2>交換所</h2>
+        <div class="wallet"><span>持っているポイント</span><b id="shop-points">0</b></div>
+      </div>
+      <p class="note">記録するたびに、休肝日でも飲んだ日でも1,000ポイント。ためたポイントで、背景や小物、背景で動く動物と交換できます。</p>
+      <div class="seg shop-seg" role="group" aria-label="品物の種類">
+        <button type="button" data-cat="bg">背景</button>
+        <button type="button" data-cat="prop">小物</button>
+        <button type="button" data-cat="pet">動物</button>
+        <button type="button" data-cat="mine">持ちもの</button>
+      </div>
+      <div id="shop-grid" class="shop-grid"></div>
     </section>
 
     <!-- 設定 -->
@@ -135,6 +177,13 @@
             <option value="1">1日</option><option value="2">2日</option><option value="3">3日</option>
             <option value="4">4日</option><option value="5">5日</option><option value="6">6日</option>
             <option value="7">7日</option>
+          </select>
+        </label>
+        <label class="row" for="set-scale">
+          <span>お酒の量の目安<small>「控えめ」は女性、お酒に弱い人、65歳以上の人など向け</small></span>
+          <select id="set-scale">
+            <option value="std">標準</option>
+            <option value="low">控えめ</option>
           </select>
         </label>
         <label class="row" for="set-price">
@@ -177,6 +226,7 @@
   <nav class="tabbar">
     <button data-view="home" class="active"><span class="ico" data-icon="home"></span>ホーム</button>
     <button data-view="cal"><span class="ico" data-icon="cal"></span>記録</button>
+    <button data-view="shop"><span class="ico" data-icon="shop"></span>交換所</button>
     <button data-view="settings"><span class="ico" data-icon="gear"></span>設定</button>
   </nav>
 
@@ -187,6 +237,17 @@
       <div class="actions">
         <button class="rec kyukan small" data-set="kyukan"><span class="rec-main">休肝日</span></button>
         <button class="rec drank small" data-set="drank"><span class="rec-main">飲んだ</span></button>
+      </div>
+      <div id="sheet-amount" class="amount sheet-amount hidden">
+        <div class="amount-head">
+          <span>どのくらい飲んだ？<small>（えらばなくてもOK）</small></span>
+          <button class="help-link" data-help type="button">目安 ⓘ</button>
+        </div>
+        <div class="amount-row">
+          <button type="button" data-samt="s">ちょっと</button>
+          <button type="button" data-samt="m">ふつう</button>
+          <button type="button" data-samt="l">たくさん</button>
+        </div>
       </div>
       <div class="sheet-foot">
         <button class="link" data-set="clear">記録を消す</button>
@@ -224,6 +285,43 @@
       <div class="summon-tap">タップしてはじめる</div>
     </div>
   </div>
+  <!-- お酒の量の目安 -->
+  <div id="guide-sheet" class="sheet-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="guide-title">
+    <div class="sheet guide">
+      <h3 id="guide-title">お酒の量の目安</h3>
+      <p class="note center">1杯 ＝ ビール中ジョッキ1杯、または350ml缶1本<br>350ml × 5% ＝ アルコール17.5ml（重さで約14g）</p>
+      <table class="guide-table">
+        <thead><tr><th></th><th id="guide-scale">標準</th></tr></thead>
+        <tbody id="guide-levels"></tbody>
+      </table>
+      <h4>ほかのお酒だと…</h4>
+      <table class="guide-table">
+        <tbody>
+          <tr><td>ビール 500ml缶（ロング缶）</td><td>約1.5杯</td></tr>
+          <tr><td>日本酒 1合（180ml）</td><td>約1.5杯</td></tr>
+          <tr><td>ワイン グラス1杯（120ml）</td><td>約1杯</td></tr>
+          <tr><td>チューハイ 350ml缶（5%）</td><td>約1杯</td></tr>
+          <tr><td>ストロング系チューハイ 350ml缶（9%）</td><td>約2杯</td></tr>
+          <tr><td>ハイボール 1杯（ウイスキー30ml）</td><td>約0.7杯</td></tr>
+        </tbody>
+      </table>
+      <p class="note">ストロング系は、見た目は1缶でも中身は2杯分です。<br>目安の基準（標準／控えめ）は、設定で変えられます。</p>
+      <button id="guide-close" class="secondary" type="button">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 確認画面（交換するときなど） -->
+  <div id="ask" class="sheet-wrap hidden" role="dialog" aria-modal="true" aria-labelledby="ask-text">
+    <div class="sheet ask">
+      <div id="ask-thumb" class="ask-thumb"></div>
+      <p id="ask-text" class="ask-text"></p>
+      <div class="btn-row">
+        <button id="ask-no" type="button" class="secondary">やめる</button>
+        <button id="ask-yes" type="button" class="primary">交換する</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast hidden"></div>
 
   <script src="app.js"></script>

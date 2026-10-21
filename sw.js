@@ -1,5 +1,5 @@
-// オフラインでも開けるようにするための仕組み（ネット優先、つながらないときは保存版を使う）
-const CACHE = "kyukanbi-v14";
+﻿// オフラインでも開けるようにするための仕組み（ネット優先、つながらないときは保存版を使う）
+const CACHE = "kyukanbi-v24";
 const FILES = [
   "./", "index.html", "style.css", "app.js", "manifest.json", "data/serifu.json",
   "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
